@@ -3,116 +3,229 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Life Organizer">
 <title>Life Organizer</title>
 <style>
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #ffecd2, #fcb69f);
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  header {
-    background: #ff6f61;
-    color: white;
-    padding: 10px;
-    text-align: center;
-    font-size: 1.4em;
-    font-weight: bold;
-  }
-  .quote {
-    font-style: italic;
-    text-align: center;
-    padding: 8px;
-    font-size: 0.9em;
-    color: #444;
-  }
-  .dashboard {
-    display: flex;
-    justify-content: space-around;
-    background: white;
-    padding: 10px 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
-  .tasks {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-  }
-  .task {
-    background: white;
-    padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
-  .plan-btn {
-    margin: 10px;
-    padding: 15px;
-    background: linear-gradient(#ff9a9e, #fad0c4);
-    border: none;
-    border-radius: 12px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: white;
-    box-shadow: 0 4px #d86b6b;
-  }
-  .plan-btn:active {
-    box-shadow: 0 2px #d86b6b;
-    transform: translateY(2px);
-  }
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to bottom right, #ff7e5f, #feb47b);
+        color: #333;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    header {
+        padding: 10px;
+        text-align: center;
+        font-size: 1.8em;
+        font-weight: bold;
+        color: white;
+    }
+    .quote {
+        font-size: 0.9em;
+        color: white;
+        text-align: center;
+        padding: 5px 15px;
+        font-style: italic;
+    }
+    .quote span {
+        display: block;
+        margin-top: 5px;
+        font-weight: bold;
+    }
+    .plan-btn {
+        background: #ff6600;
+        color: white;
+        font-size: 1.5em;
+        font-weight: bold;
+        border: none;
+        border-radius: 15px;
+        padding: 15px 30px;
+        box-shadow: 0 5px #cc5200;
+        cursor: pointer;
+        margin: 15px auto;
+        display: block;
+    }
+    .dashboard {
+        background: white;
+        margin: 0 15px;
+        border-radius: 15px;
+        padding: 10px;
+        display: flex;
+        justify-content: space-around;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .dash-item {
+        text-align: center;
+    }
+    .dash-item .count {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+    .dash-item.due .count {
+        color: red;
+    }
+    .task-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+        margin: 0 5px;
+    }
+    .task {
+        background: white;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .task.done {
+        text-decoration: line-through;
+        color: #777;
+    }
+    .task button {
+        background: none;
+        border: none;
+        font-size: 1.2em;
+        cursor: pointer;
+    }
+    .controls {
+        display: flex;
+        justify-content: space-around;
+        padding: 10px;
+        background: white;
+        border-top: 1px solid #ddd;
+    }
+    .controls button {
+        background: #ff6600;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1em;
+        cursor: pointer;
+    }
 </style>
 </head>
 <body>
-  <header>Life Organizer</header>
-  <div class="quote">“Wake an hour early and own your day. Wake an hour late and chase your day.” — KakaReza</div>
-  <div class="dashboard">
-    <div>Total: <span id="total">0</span></div>
-    <div>Due: <span id="due">0</span></div>
-    <div>Done: <span id="done">0</span></div>
-  </div>
-  <div class="tasks" id="tasks"></div>
-  <button class="plan-btn" onclick="addTask()">PLAN!</button>
+
+<header>Life Organizer</header>
+<div class="quote">
+    “Wake an hour early and own your day. Wake an hour late and chase your day.”
+    <span>— KakaReza</span>
+</div>
+
+<button class="plan-btn" onclick="startPlan()">PLAN!</button>
+
+<div class="dashboard">
+    <div class="dash-item">
+        <div class="count" id="totalCount">0</div>
+        <div>Total</div>
+    </div>
+    <div class="dash-item due">
+        <div class="count" id="dueCount">0</div>
+        <div>Due</div>
+    </div>
+    <div class="dash-item">
+        <div class="count" id="doneCount">0</div>
+        <div>Done</div>
+    </div>
+</div>
+
+<div class="task-list" id="taskList"></div>
+
+<div class="controls">
+    <button onclick="addTask()">Add Task</button>
+    <button onclick="importTasks()">Import Tasks</button>
+</div>
 
 <script>
-let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-renderTasks();
+    let tasks = JSON.parse(localStorage.getItem('lifeOrganizerTasks') || '[]');
 
-function renderTasks(){
-  const container = document.getElementById('tasks');
-  container.innerHTML = '';
-  tasks.forEach((task,i)=>{
-    let div = document.createElement('div');
-    div.className = 'task';
-    div.innerHTML = `<span>${task.name}</span><button onclick="deleteTask(${i})">❌</button>`;
-    container.appendChild(div);
-  });
-  document.getElementById('total').textContent = tasks.length;
-  document.getElementById('due').textContent = tasks.length; // Example: all due until marked done
-  document.getElementById('done').textContent = 0;
-}
+    function saveTasks() {
+        localStorage.setItem('lifeOrganizerTasks', JSON.stringify(tasks));
+        renderTasks();
+    }
 
-function addTask(){
-  let name = prompt('Enter task:');
-  if(name){
-    tasks.push({name, done:false});
-    saveTasks();
-  }
-}
-function deleteTask(i){
-  tasks.splice(i,1);
-  saveTasks();
-}
-function saveTasks(){
-  localStorage.setItem('tasks', JSON.stringify(tasks));
-  renderTasks();
-}
+    function renderTasks() {
+        const list = document.getElementById('taskList');
+        list.innerHTML = '';
+        let total = tasks.length;
+        let due = tasks.filter(t => !t.done).length;
+        let done = tasks.filter(t => t.done).length;
+        document.getElementById('totalCount').textContent = total;
+        document.getElementById('dueCount').textContent = due;
+        document.getElementById('doneCount').textContent = done;
+
+        tasks.forEach((task, index) => {
+            const div = document.createElement('div');
+            div.className = 'task' + (task.done ? ' done' : '');
+            div.innerHTML = `
+                <span>${task.text}</span>
+                <div>
+                    <button onclick="toggleDone(${index})">${task.done ? '↩' : '✔'}</button>
+                    <button onclick="editTask(${index})">✎</button>
+                    <button onclick="deleteTask(${index})">🗑</button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function toggleDone(index) {
+        tasks[index].done = !tasks[index].done;
+        saveTasks();
+    }
+
+    function editTask(index) {
+        let newText = prompt("Edit task:", tasks[index].text);
+        if (newText) {
+            tasks[index].text = newText;
+            saveTasks();
+        }
+    }
+
+    function deleteTask(index) {
+        tasks.splice(index, 1);
+        saveTasks();
+    }
+
+    function addTask() {
+        let text = prompt("Enter new task:");
+        if (text) {
+            tasks.push({ text: text, done: false });
+            saveTasks();
+        }
+    }
+
+    function importTasks() {
+        const canned = [
+            "Buy groceries","Read a book","Workout","Meditate","Clean the kitchen","Pay bills",
+            "Call mom","Walk the dog","Plan weekend trip","Organize desk","Do laundry","Cook dinner",
+            "Study for exam","Write journal","Check emails","Water plants","Practice guitar","Backup files",
+            "Schedule doctor appointment","Fix leaky faucet","Meal prep","Review budget","Change bedsheets",
+            "Take vitamins","Vacuum living room","Sort photos","Plan birthday","Learn a new recipe","Go for a run",
+            "Practice coding","Car maintenance","Declutter closet","Update software","Read news","Stretch",
+            "Walk in nature","Paint","Listen to podcast","Do yoga","Grocery list","Plan next week"
+        ];
+        canned.forEach(t => {
+            if (!tasks.find(task => task.text === t)) {
+                tasks.push({ text: t, done: false });
+            }
+        });
+        saveTasks();
+    }
+
+    function startPlan() {
+        addTask();
+    }
+
+    renderTasks();
 </script>
 </body>
 </html>
