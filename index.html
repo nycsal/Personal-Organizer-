@@ -3,229 +3,254 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Life Organizer">
 <title>Life Organizer</title>
 <style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: linear-gradient(to bottom right, #ff7e5f, #feb47b);
-        color: #333;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-    header {
-        padding: 10px;
-        text-align: center;
-        font-size: 1.8em;
-        font-weight: bold;
-        color: white;
-    }
-    .quote {
-        font-size: 0.9em;
-        color: white;
-        text-align: center;
-        padding: 5px 15px;
-        font-style: italic;
-    }
-    .quote span {
-        display: block;
-        margin-top: 5px;
-        font-weight: bold;
-    }
-    .plan-btn {
-        background: #ff6600;
-        color: white;
-        font-size: 1.5em;
-        font-weight: bold;
-        border: none;
-        border-radius: 15px;
-        padding: 15px 30px;
-        box-shadow: 0 5px #cc5200;
-        cursor: pointer;
-        margin: 15px auto;
-        display: block;
-    }
-    .dashboard {
-        background: white;
-        margin: 0 15px;
-        border-radius: 15px;
-        padding: 10px;
-        display: flex;
-        justify-content: space-around;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .dash-item {
-        text-align: center;
-    }
-    .dash-item .count {
-        font-size: 1.5em;
-        font-weight: bold;
-    }
-    .dash-item.due .count {
-        color: red;
-    }
-    .task-list {
-        flex: 1;
-        overflow-y: auto;
-        padding: 10px;
-        margin: 0 5px;
-    }
-    .task {
-        background: white;
-        border-radius: 10px;
-        padding: 10px;
-        margin-bottom: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    }
-    .task.done {
-        text-decoration: line-through;
-        color: #777;
-    }
-    .task button {
-        background: none;
-        border: none;
-        font-size: 1.2em;
-        cursor: pointer;
-    }
-    .controls {
-        display: flex;
-        justify-content: space-around;
-        padding: 10px;
-        background: white;
-        border-top: 1px solid #ddd;
-    }
-    .controls button {
-        background: #ff6600;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 10px;
-        font-size: 1em;
-        cursor: pointer;
-    }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #ffecd2, #fcb69f);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  header {
+    background: #ff6f61;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-size: 1.4em;
+    font-weight: bold;
+  }
+  .quote {
+    font-style: italic;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.9em;
+    color: #444;
+  }
+  .screen {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .active {
+    display: flex;
+  }
+  .home-screen {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .plan-btn {
+    padding: 20px 40px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(#ff9a9e, #fad0c4);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 6px #d86b6b;
+    cursor: pointer;
+  }
+  .plan-btn:active {
+    box-shadow: 0 3px #d86b6b;
+    transform: translateY(3px);
+  }
+  .dashboard {
+    display: flex;
+    justify-content: space-around;
+    background: white;
+    padding: 10px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-weight: bold;
+  }
+  .tasks {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  .task {
+    background: white;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .task.overdue {
+    border-left: 5px solid red;
+  }
+  .task span {
+    flex: 1;
+    margin-right: 8px;
+  }
+  .controls button {
+    margin-left: 5px;
+    border: none;
+    background: #eee;
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+  }
+  .add-task-form {
+    background: #fff;
+    padding: 10px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .add-task-form input, .add-task-form button, .add-task-form select {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+  }
+  .canned-tasks {
+    display: flex;
+    overflow-x: auto;
+    gap: 5px;
+    padding: 5px;
+    background: #fff;
+  }
+  .canned-tasks button {
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    border: none;
+    border-radius: 10px;
+    padding: 5px 10px;
+    font-size: 0.8em;
+    white-space: nowrap;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
 
 <header>Life Organizer</header>
-<div class="quote">
-    “Wake an hour early and own your day. Wake an hour late and chase your day.”
-    <span>— KakaReza</span>
+<div class="quote">“Wake an hour early and own your day. Wake an hour late and chase your day.” — KakaReza</div>
+
+<div id="homeScreen" class="screen home-screen active">
+  <button class="plan-btn" onclick="goToPlanner()">PLAN!</button>
 </div>
 
-<button class="plan-btn" onclick="startPlan()">PLAN!</button>
-
-<div class="dashboard">
-    <div class="dash-item">
-        <div class="count" id="totalCount">0</div>
-        <div>Total</div>
-    </div>
-    <div class="dash-item due">
-        <div class="count" id="dueCount">0</div>
-        <div>Due</div>
-    </div>
-    <div class="dash-item">
-        <div class="count" id="doneCount">0</div>
-        <div>Done</div>
-    </div>
-</div>
-
-<div class="task-list" id="taskList"></div>
-
-<div class="controls">
-    <button onclick="addTask()">Add Task</button>
-    <button onclick="importTasks()">Import Tasks</button>
+<div id="plannerScreen" class="screen">
+  <div class="dashboard">
+    <div>Total: <span id="total">0</span></div>
+    <div>Due: <span id="due">0</span> ✅</div>
+    <div>Done: <span id="done">0</span></div>
+  </div>
+  
+  <div class="canned-tasks" id="cannedTasks"></div>
+  
+  <div class="tasks" id="tasks"></div>
+  
+  <div class="add-task-form">
+    <input type="text" id="taskName" placeholder="Task name">
+    <input type="date" id="taskDate">
+    <button onclick="addTask()">Add</button>
+  </div>
 </div>
 
 <script>
-    let tasks = JSON.parse(localStorage.getItem('lifeOrganizerTasks') || '[]');
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
-    function saveTasks() {
-        localStorage.setItem('lifeOrganizerTasks', JSON.stringify(tasks));
-        renderTasks();
+const cannedList = [
+  "Buy groceries","Call mom","Walk the dog","Pay bills","Read 30 mins","Workout",
+  "Meditate","Clean kitchen","Laundry","Plan meals","Check emails","Water plants",
+  "Car wash","Organize desk","Grocery list","Review budget","Learn coding",
+  "Book appointment","Renew license","Journal","Stretch","Morning run","Vacuum",
+  "Mow lawn","Bake","Declutter","Plan trip","Study","Practice music","Call friend",
+  "Fix leaky faucet","Take vitamins","Backup files","Change sheets","Wash car",
+  "Reply to messages","Organize closet","Update resume","Post on social","Family time"
+];
+
+function renderCanned() {
+  const container = document.getElementById('cannedTasks');
+  container.innerHTML = '';
+  cannedList.forEach(name => {
+    const btn = document.createElement('button');
+    btn.textContent = name;
+    btn.onclick = () => {
+      document.getElementById('taskName').value = name;
+      document.getElementById('taskDate').value = '';
+    };
+    container.appendChild(btn);
+  });
+}
+
+function renderTasks(){
+  const container = document.getElementById('tasks');
+  container.innerHTML = '';
+  let dueCount = 0, doneCount = 0;
+  const today = new Date().toISOString().split('T')[0];
+  tasks.forEach((task,i)=>{
+    let div = document.createElement('div');
+    div.className = 'task';
+    if(task.date && task.date < today && !task.done) {
+      div.classList.add('overdue');
+      dueCount++;
     }
+    if(task.done) doneCount++;
+    div.innerHTML = `
+      <span>${task.name} ${task.date ? '('+task.date+')':''}</span>
+      <div class="controls">
+        <button onclick="toggleDone(${i})">${task.done ? 'Undo' : '✔'}</button>
+        <button onclick="editTask(${i})">✏</button>
+        <button onclick="deleteTask(${i})">❌</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  document.getElementById('total').textContent = tasks.length;
+  document.getElementById('due').textContent = dueCount;
+  document.getElementById('done').textContent = doneCount;
+}
 
-    function renderTasks() {
-        const list = document.getElementById('taskList');
-        list.innerHTML = '';
-        let total = tasks.length;
-        let due = tasks.filter(t => !t.done).length;
-        let done = tasks.filter(t => t.done).length;
-        document.getElementById('totalCount').textContent = total;
-        document.getElementById('dueCount').textContent = due;
-        document.getElementById('doneCount').textContent = done;
+function addTask(){
+  const name = document.getElementById('taskName').value.trim();
+  const date = document.getElementById('taskDate').value;
+  if(name) {
+    tasks.push({name, date, done:false});
+    saveTasks();
+    document.getElementById('taskName').value = '';
+    document.getElementById('taskDate').value = '';
+  }
+}
 
-        tasks.forEach((task, index) => {
-            const div = document.createElement('div');
-            div.className = 'task' + (task.done ? ' done' : '');
-            div.innerHTML = `
-                <span>${task.text}</span>
-                <div>
-                    <button onclick="toggleDone(${index})">${task.done ? '↩' : '✔'}</button>
-                    <button onclick="editTask(${index})">✎</button>
-                    <button onclick="deleteTask(${index})">🗑</button>
-                </div>
-            `;
-            list.appendChild(div);
-        });
-    }
+function editTask(i){
+  const newName = prompt('Edit task name:', tasks[i].name);
+  if(newName !== null) {
+    tasks[i].name = newName.trim();
+    saveTasks();
+  }
+}
 
-    function toggleDone(index) {
-        tasks[index].done = !tasks[index].done;
-        saveTasks();
-    }
+function deleteTask(i){
+  tasks.splice(i,1);
+  saveTasks();
+}
 
-    function editTask(index) {
-        let newText = prompt("Edit task:", tasks[index].text);
-        if (newText) {
-            tasks[index].text = newText;
-            saveTasks();
-        }
-    }
+function toggleDone(i){
+  tasks[i].done = !tasks[i].done;
+  saveTasks();
+}
 
-    function deleteTask(index) {
-        tasks.splice(index, 1);
-        saveTasks();
-    }
+function saveTasks(){
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  renderTasks();
+}
 
-    function addTask() {
-        let text = prompt("Enter new task:");
-        if (text) {
-            tasks.push({ text: text, done: false });
-            saveTasks();
-        }
-    }
-
-    function importTasks() {
-        const canned = [
-            "Buy groceries","Read a book","Workout","Meditate","Clean the kitchen","Pay bills",
-            "Call mom","Walk the dog","Plan weekend trip","Organize desk","Do laundry","Cook dinner",
-            "Study for exam","Write journal","Check emails","Water plants","Practice guitar","Backup files",
-            "Schedule doctor appointment","Fix leaky faucet","Meal prep","Review budget","Change bedsheets",
-            "Take vitamins","Vacuum living room","Sort photos","Plan birthday","Learn a new recipe","Go for a run",
-            "Practice coding","Car maintenance","Declutter closet","Update software","Read news","Stretch",
-            "Walk in nature","Paint","Listen to podcast","Do yoga","Grocery list","Plan next week"
-        ];
-        canned.forEach(t => {
-            if (!tasks.find(task => task.text === t)) {
-                tasks.push({ text: t, done: false });
-            }
-        });
-        saveTasks();
-    }
-
-    function startPlan() {
-        addTask();
-    }
-
-    renderTasks();
+function goToPlanner(){
+  document.getElementById('homeScreen').classList.remove('active');
+  document.getElementById('plannerScreen').classList.add('active');
+  renderCanned();
+  renderTasks();
+}
 </script>
+
 </body>
 </html>
