@@ -1,1 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Personal Organizer — Plan!</title>
+  <style>
+    :root{
+      --bg:#0f1724; /* deep navy */
+      --card:#0b1220;
+      --accent:#ff6b6b; /* punchy red */
+      --accent-2:#6b9eff; /* electric blue */
+      --muted:#9aa7bf;
+      --glass: rgba(255,255,255,0.04);
+      --radius:18px;
+      --iphone-w:390px; /* visual width to match iPhone-like */
+      --iphone-h:844px;
+      --ui-font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    /* Center container for desktop preview */
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#061223 0%, #071221 40%, #061025 100%);font-family:var(--ui-font);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+    .frame{
+      width:var(--iphone-w);
+      height:var(--iphone-h);
+      margin:28px auto;
+      border-radius:42px;
+      background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      box-shadow: 0 20px 50px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+      overflow:hidden;
+      position:relative;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    header{padding:14px 18px;display:flex;align-items:center;gap:12px;}
+    .logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--accent), var(--accent-2));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;box-shadow:0 6px 18px rgba(107,155,255,0.12), 0 6px 22px rgba(255,107,107,0.08);}
+    h1{margin:0;color:white;font-size:18px;letter-spacing:0.2px}
+    p.subtitle{margin:0;color:var(--muted);font-size:12px}
+
+    main{padding:10px 18px;display:flex;flex-direction:column;gap:12px;height:calc(100% - 86px);}
+
+    /* big 3D button */
+    .big-cta{display:flex;align-items:center;justify-content:center;height:120px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));border-radius:18px;padding:10px;box-shadow: 0 18px 30px rgba(11,18,32,0.6);}
+    .plan-btn{--y:0;position:relative;display:inline-block;padding:14px 28px;border-radius:18px;background:linear-gradient(180deg,#ffd0d0,#ff8b8b);color:#2b0505;font-weight:800;font-size:20px;letter-spacing:1px;transform:translateY(var(--y));box-shadow: 0 12px 30px rgba(255,107,107,0.28), 0 3px 0 rgba(0,0,0,0.15);border:none}
+    .plan-btn:active{--y:6px}
+    /* 3D shine */
+    .plan-btn::after{content:"";position:absolute;left:8px;top:0;right:8px;height:40%;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.08));mix-blend-mode:overlay}
+
+    /* dashboard */
+    .dashboard{display:grid;grid-template-columns:1fr 84px;gap:12px;align-items:stretch}
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:14px}
+    .panel h3{margin:0;font-size:13px;color:var(--muted)}
+
+    .stats{display:flex;gap:10px;margin-top:8px}
+    .stat{flex:1;padding:8px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));text-align:center}
+    .stat .num{font-size:20px;color:white;font-weight:700}
+    .stat .lbl{font-size:11px;color:var(--muted)}
+
+    .due-box{display:flex;flex-direction:column;gap:8px}
+    .due-item{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;background:linear-gradient(90deg, rgba(255,107,107,0.06), rgba(255,255,255,0.01));}
+    .due-item .dot{width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,var(--accent),#ff9b9b);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+    .due-item .meta{flex:1}
+    .due-item .meta .t{color:white;font-weight:700;font-size:14px}
+    .due-item .meta .d{color:var(--muted);font-size:12px}
+
+    /* task list area */
+    .tasks-area{height:100%;display:flex;flex-direction:column}
+    .controls{display:flex;gap:10px;align-items:center}
+    .search{flex:1;padding:8px;border-radius:10px;border:none;background:var(--glass);color:var(--muted)}
+    .add-btn{padding:10px 12px;border-radius:12px;background:linear-gradient(180deg,#6b9eff,#6b6bff);color:white;border:none;font-weight:700}
+
+    .task-scroll{margin-top:8px;flex:1;overflow:auto;padding-right:6px}
+    .task-btn{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));margin-bottom:8px;border:1px solid rgba(255,255,255,0.02)}
+    .task-btn .title{flex:1;color:white;font-weight:700}
+    .task-btn .meta{font-size:12px;color:var(--muted)}
+    .task-btn .actions{display:flex;gap:8px}
+    .icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));}
+    .chip{padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.03);font-size:12px;color:var(--muted)}
+
+    .btn-small{padding:8px;border-radius:8px;border:none;background:var(--accent);color:white;font-weight:700}
+    .btn-edit{background:#ffd86b;color:#2b1200}
+
+    /* modal */
+    .modal{position:fixed;left:0;top:0;right:0;bottom:0;display:none;align-items:center;justify-content:center;background:linear-gradient(rgba(2,6,23,0.6), rgba(2,6,23,0.6));z-index:50}
+    .modal.show{display:flex}
+    .sheet{width:92%;max-width:420px;background:linear-gradient(180deg,#071226,#081024);padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,0.03)}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+    label{font-size:12px;color:var(--muted)}
+    input[type=text], input[type=date], select, textarea{padding:10px;border-radius:10px;border:none;background:var(--glass);color:white}
+
+    .row{display:flex;gap:8px}
+    .small{flex:1}
+
+    footer{padding:8px 18px;position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, rgba(0,0,0,0.12));}
+
+    /* tiny helpers */
+    .muted{color:var(--muted)}
+
+    /* scroll styling */
+    .task-scroll::-webkit-scrollbar{width:8px}
+    .task-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.04);border-radius:8px}
+
+    @media (max-width:420px){:root{--iphone-w:100vw;--iphone-h:100vh}.frame{border-radius:0;height:100vh;margin:0}}
+  </style>
+</head>
+<body>
+  <div class="frame" role="application" aria-label="Personal Organizer">
+    <header>
+      <div class="logo">PO</div>
+      <div>
+        <h1>Personal Organizer</h1>
+        <p class="subtitle">Not a calendar — your colorful daily command center</p>
+      </div>
+    </header>
+
+    <main>
+      <div class="big-cta panel">
+        <button class="plan-btn" id="openPlan">PLAN!</button>
+      </div>
+
+      <div class="dashboard">
+        <div class="panel">
+          <h3>Dashboard</h3>
+          <div class="stats">
+            <div class="stat"><div class="num" id="totalCount">0</div><div class="lbl">Total</div></div>
+            <div class="stat"><div class="num" id="dueCount">0</div><div class="lbl">Due</div></div>
+            <div class="stat"><div class="num" id="doneCount">0</div><div class="lbl">Done</div></div>
+          </div>
+
+          <div style="margin-top:12px">
+            <h3 style="margin-top:8px">Upcoming Due</h3>
+            <div class="due-box" id="dueBox">
+              <!-- generated -->
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="display:flex;flex-direction:column;justify-content:space-between;">
+          <h3>Quick Actions</h3>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+            <button class="btn-small" id="addQuick">+ Quick add</button>
+            <button class="btn-small" id="importSample">Import 40 Tasks</button>
+            <button class="btn-small" id="clearAll">Clear All</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tasks-area panel" style="margin-top:6px">
+        <div class="controls">
+          <input placeholder="Search tasks or filter..." id="search" class="search" />
+          <button class="add-btn" id="openAdd">Add</button>
+        </div>
+
+        <div class="task-scroll" id="taskList">
+          <!-- tasks appear here -->
+        </div>
+      </div>
+
+    </main>
+
+    <footer>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="muted">Saved to device • LocalStorage</div>
+        <div class="muted">Tap a task to open editor</div>
+      </div>
+    </footer>
+
+    <!-- Modal sheet -->
+    <div class="modal" id="modal">
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <h2 id="modalTitle" style="color:white;margin:0 0 8px 0">Add / Edit Task</h2>
+        <div class="field">
+          <label>Title</label>
+          <input type="text" id="taskTitle" placeholder="Buy groceries" />
+        </div>
+        <div class="row">
+          <div class="field small">
+            <label>Category (quick pick)</label>
+            <select id="taskCategory">
+              <option value="Personal">Personal</option>
+              <option value="Work">Work</option>
+              <option value="Home">Home</option>
+              <option value="Errand">Errand</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Health">Health</option>
+              <option value="Finance">Finance</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field small">
+            <label>Due date</label>
+            <input type="date" id="taskDue" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Notes</label>
+          <textarea id="taskNotes" rows="3" placeholder="Short notes..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn-small" id="saveTask">Save</button>
+          <button class="btn-edit" id="cancelTask">Cancel</button>
+          <button style="display:none;background:#333;color:white;border-radius:8px;padding:8px" id="deleteTask">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Simple organizer app using localStorage
+      const LS_KEY = 'personal_organizer_tasks_v1';
+      const taskListEl = document.getElementById('taskList');
+      const dueBox = document.getElementById('dueBox');
+      const totalCount = document.getElementById('totalCount');
+      const dueCount = document.getElementById('dueCount');
+      const doneCount = document.getElementById('doneCount');
+
+      let tasks = [];
+      let editingId = null;
+
+      // canned tasks (40)
+      const canned = [
+        'Buy groceries','Pay electricity bill','Call mom','Car: check oil','Book dentist appointment','Send invoice to client','Renew driver\'s license','Clean kitchen','Mow lawn','Trim trees','Buy gift for friend','Schedule vet visit for Juno','Fix bathroom tile','Pick up laundry','Meal prep for week','Back up laptop','Update resume','Plan weekend trip','Read 30 pages','Practice Spanish 20 min','Upload photos','Organize receipts','Check insurance','Pay credit card','Review budget','Order supplies','Replace lawnmower belt','Change HVAC filter','Paint trim','Assemble shelving','Donate old clothes','Return online order','Meet with contractor','Inspect roof','Water plants','Deep clean fridge','Call Alireza','Make presentation','Backup phone','Write journal'];
+
+      // helpers
+      function save(){localStorage.setItem(LS_KEY, JSON.stringify(tasks));render()}
+      function load(){const s = localStorage.getItem(LS_KEY);tasks = s ? JSON.parse(s) : [];render()}
+
+      function formatDate(d){if(!d) return '' ; const dt = new Date(d + 'T00:00:00'); return dt.toLocaleDateString();}
+
+      function isDueSoon(d){ if(!d) return false; const today = new Date(); const due = new Date(d + 'T23:59:59'); const diff = (due - today)/(1000*60*60*24); return diff <= 2 && diff >= -3650; }
+      function isOverdue(d){ if(!d) return false; const today = new Date(); const due = new Date(d + 'T23:59:59'); return due < today && Math.abs((due - today)/(1000*60*60*24))>0; }
+
+      function render(){
+        // counts
+        totalCount.textContent = tasks.length;
+        const done = tasks.filter(t=>t.done).length; doneCount.textContent = done;
+        const dueItems = tasks.filter(t=>t.due && !t.done && isDueSoon(t.due)); dueCount.textContent = dueItems.length;
+
+        // due box
+        dueBox.innerHTML = '';
+        dueItems.slice(0,3).forEach(t=>{
+          const el = document.createElement('div'); el.className='due-item';
+          el.innerHTML = `
+            <div class="dot">${t.title.charAt(0).toUpperCase()}</div>
+            <div class="meta"><div class="t">${escapeHtml(t.title)}</div><div class="d">Due ${formatDate(t.due)}</div></div>
+          `;
+          el.addEventListener('click',()=>openEditor(t.id));
+          dueBox.appendChild(el);
+        });
+
+        // task list
+        taskListEl.innerHTML = '';
+        const q = document.getElementById('search').value.toLowerCase();
+        tasks.filter(t=>{
+          if(!q) return true;
+          return t.title.toLowerCase().includes(q) || (t.notes||'').toLowerCase().includes(q) || (t.category||'').toLowerCase().includes(q);
+        }).forEach(t=>{
+          const node = document.createElement('div'); node.className='task-btn';
+          node.innerHTML = `
+            <div class="icon">${t.done? '&#10003;':'✱'}</div>
+            <div style="flex:1">
+              <div class="title">${escapeHtml(t.title)}</div>
+              <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+                <div class="chip">${escapeHtml(t.category||'')}</div>
+                <div class="meta">${t.due? formatDate(t.due):''}</div>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn-small" data-id="${t.id}" data-action="toggle">${t.done? 'Undo':'Done'}</button>
+              <button class="btn-edit" data-id="${t.id}" data-action="edit">Edit</button>
+            </div>
+          `;
+
+          // red accent border when due/overdue and not done
+          if(t.due && !t.done){
+            const d = new Date(t.due + 'T23:59:59');
+            const today = new Date();
+            if(d < new Date(today.getFullYear(), today.getMonth(), today.getDate()+2)){
+              node.style.border = '1px solid rgba(255,107,107,0.28)';
+              node.style.boxShadow = '0 6px 16px rgba(255,107,107,0.05)';
+            }
+          }
+
+          // event listeners
+          node.querySelectorAll('button').forEach(b=>{
+            b.addEventListener('click',(e)=>{
+              const id = b.dataset.id; const action = b.dataset.action;
+              if(action==='toggle'){ toggleDone(id); }
+              if(action==='edit'){ openEditor(id); }
+            })
+          });
+
+          taskListEl.appendChild(node);
+        });
+      }
+
+      function escapeHtml(s){ if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+      function uid(){ return 't_'+Math.random().toString(36).slice(2,9); }
+
+      function openEditor(id){
+        const modal = document.getElementById('modal');
+        const delBtn = document.getElementById('deleteTask');
+        editingId = id || null;
+        if(id){
+          const t = tasks.find(x=>x.id===id);
+          if(!t) return;
+          document.getElementById('taskTitle').value = t.title;
+          document.getElementById('taskCategory').value = t.category || 'Personal';
+          document.getElementById('taskDue').value = t.due || '';
+          document.getElementById('taskNotes').value = t.notes || '';
+          delBtn.style.display='inline-block';
+        } else {
+          document.getElementById('taskTitle').value='';
+          document.getElementById('taskCategory').value='Personal';
+          document.getElementById('taskDue').value='';
+          document.getElementById('taskNotes').value='';
+          delBtn.style.display='none';
+        }
+        modal.classList.add('show');
+      }
+
+      function closeEditor(){ document.getElementById('modal').classList.remove('show'); editingId = null; }
+
+      document.getElementById('openPlan').addEventListener('click', ()=>{ openEditor(); });
+      document.getElementById('openAdd').addEventListener('click', ()=>{ openEditor(); });
+      document.getElementById('cancelTask').addEventListener('click', ()=>{ closeEditor(); });
+
+      document.getElementById('saveTask').addEventListener('click', ()=>{
+        const t = document.getElementById('taskTitle').value.trim();
+        if(!t){ alert('Please enter a title'); return; }
+        const cat = document.getElementById('taskCategory').value;
+        const due = document.getElementById('taskDue').value || null;
+        const notes = document.getElementById('taskNotes').value;
+        if(editingId){
+          const idx = tasks.findIndex(x=>x.id===editingId);
+          if(idx>-1){ tasks[idx].title=t; tasks[idx].category=cat; tasks[idx].due=due; tasks[idx].notes=notes; }
+        } else {
+          tasks.unshift({id:uid(), title:t, category:cat, due:due, notes:notes, done:false, created: new Date().toISOString()});
+        }
+        save(); closeEditor();
+      });
+
+      document.getElementById('deleteTask').addEventListener('click', ()=>{
+        if(!editingId) return; if(!confirm('Delete this task?')) return;
+        tasks = tasks.filter(x=>x.id!==editingId); save(); closeEditor();
+      });
+
+      function toggleDone(id){ const idx = tasks.findIndex(x=>x.id===id); if(idx>-1){ tasks[idx].done = !tasks[idx].done; save(); } }
+
+      document.getElementById('search').addEventListener('input', ()=>{ render(); });
+
+      document.getElementById('addQuick').addEventListener('click', ()=>{ const t = prompt('Quick add title'); if(t){ tasks.unshift({id:uid(), title:t, category:'Quick', due:null, notes:'', done:false, created:new Date().toISOString()}); save(); } });
+
+      document.getElementById('importSample').addEventListener('click', ()=>{
+        if(!confirm('Import 40 canned tasks? This will add them to your list.')) return;
+        canned.forEach(c=> tasks.unshift({id:uid(), title:c, category:'Suggested', due:null, notes:'', done:false, created:new Date().toISOString()})); save();
+      });
+
+      document.getElementById('clearAll').addEventListener('click', ()=>{ if(confirm('Clear ALL tasks from this device?')){ tasks=[]; save(); } });
+
+      // load
+      load();
+
+      // create some helpful demo if empty
+      if(tasks.length===0){ tasks = [{id:uid(), title:'Welcome — tap PLAN! to add tasks', category:'Welcome', due:null, notes:'This is stored locally on your device.', done:false, created:new Date().toISOString()}]; save(); }
+
+      // keyboard accessibility: close modal on Escape
+      window.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ closeEditor(); } });
+
+      // expose openEditor for dueBox clicks
+      window.openEditor = openEditor;
+
+      // simple animation: pulse CTA
+      setInterval(()=>{ const btn=document.querySelector('.plan-btn'); btn.style.transform = btn.style.transform? 'translateY(0px)':'translateY(-6px)'; setTimeout(()=>btn.style.transform='translateY(0px)',400); },2300);
+
+      // sample: mark overdue/due visuals update every minute
+      setInterval(render, 60*1000);
+    </script>
+  </div>
+</body>
+</html>
 
